@@ -57,25 +57,28 @@ function porExtenso(){
 
 function numberToString(number,numberLength,string){
     if(numberLength == 1){
-        if(string.length>0)
-            if(number == 0){
-                return string;
-            }else{
-                return string + " e " + unity[number];
-            }
+        if(number == 0 && string.length>0){
+            return "Zero";
+        }
+        if(string.length>0) {
+            return string + " e " + unity[number];
+        }
         else return unity[number];
     }else if(numberLength == 2){
         numberLength = numberLength-1;
-        if(number<="20" && number==0 && number >=10){
-            if(string.length>0)
-                if(number == 0){
-                    return string;
-                }else{
-                    return string + " e " + decimal[number];
-                }
-            else return decimal[number];
-        }else{
-            string = string + " e " +decimal[Math.floor(number/10)*10];
+        if((number<=20 && number >=10 )|| number%10==0){
+            if(string.length>0){
+                return string + " e " + decimal[number];
+            }else return decimal[number];
+        }else if(number<10){
+            return numberToString(number, numberLength, string)
+        }
+        else{
+            if(string.length>0){
+                string = string + " e " +decimal[Math.floor(number/10)*10];
+            }else{
+                string = decimal[Math.floor(number/10)*10];
+            }
             number = number - Math.floor(number/10)*10;
             return numberToString(number, numberLength, string)
         }
@@ -83,10 +86,12 @@ function numberToString(number,numberLength,string){
     }else if(numberLength == 3){
         if(number == 100){
             return "Cem"
+        }else if(number%100==0){
+            return hundred[number];
         }
-        numberLength = numberLength-1;
         string = hundred[Math.floor(number/100)*100];
         number = number - Math.floor(number/100)*100;
+        numberLength = numberLength-1;
         return numberToString(number, numberLength, string)
     }
 }
