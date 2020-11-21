@@ -44,15 +44,24 @@ var hundred = {
     900: "Novecentos"
 }
 
-function getNumber(){
-    document.getElementById("numberInput").value = document.getElementById("rangeInput").value;
+window.addEventListener('load',start);
+var rangeInput = document.querySelector('#rangeInput');
+
+function start(){
+    rangeInput.addEventListener('change',changeTextInput);
 }
 
-function porExtenso(){
-    var number = document.getElementById("rangeInput").value;
-    
+function changeTextInput(event){
+    var number = rangeInput.value;
+    //Mudança do input em numeral
+    var numberInput = document.querySelector('#numberInput');
+    numberInput.value = number;
+
+    //Mudança do input em extenso
+    var extenseInput = document.querySelector('#extenseInput');
     var result = numberToString(number,number.length,"");
-    document.getElementById("extenseInput").value  = result;
+    extenseInput.value = result;
+    
 }
 
 function numberToString(number,numberLength,string){
