@@ -1,40 +1,75 @@
+var userArray = null;
+var inputSearch = null;
+var stringSearch = null;
+var cardSelectUsers = null;
+
 async function start() {
     var resource = await fetch('http://localhost:3001/results');
-    var userArray = await resource.json();
+    userArray = await resource.json();
     userArray = userArray.map( user =>{
             return {
-                firstName : user.name.first,
-                lastName : user.name.last,
+                firstName : user.name.first.toLowerCase(),
+                lastName : user.name.last.toLowerCase(),
                 age : user.dob.age,
                 gender: user.gender,
                 picture: user.picture.medium
             }
         });
-    //userArray = filterUserArray();
-    loadUsersPanel(userArray);
-    loadMoreInfo(userArray);
+    cardSelectUsers = document.querySelector('#card-selected-users');
+    inputSearch = document.querySelector('#search-text');
+    inputSearch.focus();
+    inputSearch.addEventListener('input',()=>{
+        stringSearch = inputSearch.value;
+    })
+    preventFormSubmit();
 }
 
-function loadUsersPanel(userArray){
-    let value = document.querySelector('#card-user');
-    let picture = document.querySelector('#pic-user');
-    /** Find para achar uma pessoa */
-    let person = userArray.find(user =>{
-        return user.lastName === 'Porto'
-    })
-    /** Some para achar varias, porém só retorna true ou false */
-    let people = userArray.filter(user =>{
-        return user.lastName.includes('Costa');
-    })
-    console.log(people);
-    value.textContent = `${person.firstName} ${person.lastName}, ${person.age} anos`;
-    picture.src = person.picture;
+function preventFormSubmit(){
+    var form = document.querySelector('#form-search-bar');
+    form.addEventListener('submit',function handleFormSubmit (event){
+        event.preventDefault();
+        loadStructure();
+    });
 }
-function loadMoreInfo(userArray){
-    let male = userArray.filter( user =>{
+
+function loadStructure(){
+    selectedUsers = userArray.filter(user =>{
+        return user.firstName.includes(stringSearch) || user.lastName.includes(stringSearch)
+    })
+    if(stringSearch != null){
+        loadUsersPanel(selectedUsers);
+        loadMoreInfo(selectedUsers);
+    }else{
+        loadUsersPanel(userArray);
+        loadMoreInfo(userArray);
+    }
+    
+}
+
+function loadUsersPanel(array){
+    
+    let usersHTML = `<h3> ${array.length} Usuário(s) Selecionado(s) </h3><br>`;
+    
+    array.forEach(user =>{
+        let first = capitalizeFirstLetter(user.firstName)
+        let last = capitalizeFirstLetter(user.lastName)
+        userHTML = `<img src="${user.picture}"></img>
+        <span type="text" id="card-user">${first} ${last}, ${user.age} anos</span><br>`
+        usersHTML +=userHTML
+    })
+
+    cardSelectUsers.innerHTML = usersHTML;
+
+    //let value = document.querySelector('#card-user');
+    //let picture = document.querySelector('#pic-user');
+    //value.textContent = `${array[0].firstName} ${array[0].lastName}, ${array[0].age} anos`;
+    //picture.src = array[0].picture;
+}
+function loadMoreInfo(array){
+    let male = array.filter( user =>{
         return user.gender === "male"
     }).length
-    let female = userArray.filter( user =>{
+    let female = array.filter( user =>{
         return user.gender === "female"
     }).length;
     /** Soma das idades com forEach
@@ -44,10 +79,10 @@ function loadMoreInfo(userArray){
     });
      */
     //Soma das idades utilizando Reduce
-    let sumAge = userArray.reduce((sum, actual)=>{
+    let sumAge = array.reduce((sum, actual)=>{
         return sum + actual.age;
     }, 0)
-    let averageAge = sumAge/userArray.length;
+    let averageAge = sumAge/array.length;
     
     let maleSpan = document.querySelector('#statsMale');
     maleSpan.textContent = `Homens: ${male}`;
@@ -59,7 +94,11 @@ function loadMoreInfo(userArray){
     sumSpan.textContent = `Soma de Idades: ${sumAge}`;
 
     let averageSpan = document.querySelector('#statsAverage');
-    averageSpan.textContent =  `Média de Idades: ${averageAge}`;
+    averageSpan.textContent =  `Média de Idades: ${averageAge.toFixed(2)}`;
 
+}
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
 }
 window.addEventListener('load',start)
