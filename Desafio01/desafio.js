@@ -17,7 +17,18 @@ async function start() {
 
 function loadUsersPanel(userArray){
     let value = document.querySelector('#card-user');
-    value.textContent = `${userArray[0].firstName} ${userArray[0].lastName}, ${userArray[0].age} anos`;
+    let picture = document.querySelector('#pic-user');
+    /** Find para achar uma pessoa */
+    let person = userArray.find(user =>{
+        return user.lastName === 'Porto'
+    })
+    /** Some para achar varias, porém só retorna true ou false */
+    let people = userArray.filter(user =>{
+        return user.lastName.includes('Costa');
+    })
+    console.log(people);
+    value.textContent = `${person.firstName} ${person.lastName}, ${person.age} anos`;
+    picture.src = person.picture;
 }
 function loadMoreInfo(userArray){
     let male = userArray.filter( user =>{
