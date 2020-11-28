@@ -1,6 +1,15 @@
 async function start() {
     var resource = await fetch('http://localhost:3001/results');
     var userArray = await resource.json();
+    userArray = userArray.map( user =>{
+            return {
+                firstName : user.name.first,
+                lastName : user.name.last,
+                age : user.dob.age,
+                gender: user.gender,
+                picture: user.picture.medium
+            }
+        });
     //userArray = filterUserArray();
     loadUsersPanel(userArray);
     loadMoreInfo(userArray);
@@ -8,23 +17,26 @@ async function start() {
 
 function loadUsersPanel(userArray){
     let value = document.querySelector('#card-user');
-    value.textContent = `${userArray[0].name.first} ${userArray[0].name.last}, ${userArray[0].dob.age} anos`;
+    value.textContent = `${userArray[0].firstName} ${userArray[0].lastName}, ${userArray[0].age} anos`;
 }
 function loadMoreInfo(userArray){
-    let male = 0;
-    let female = 0;
-    let sumAge = 0 ;
-    let averageAge = 0;
-    for(let user of userArray){
-        if(user.gender == "female"){
-            female++;
-        }else{
-            male++;
-        }
-        sumAge += user.dob.age;
-        averageAge += user.dob.age;
-    }
-    averageAge = averageAge/userArray.length;
+    let male = userArray.filter( user =>{
+        return user.gender === "male"
+    }).length
+    let female = userArray.filter( user =>{
+        return user.gender === "female"
+    }).length;
+    /** Soma das idades com forEach
+    let sumAge = 0;
+    userArray.forEach(user => {
+        sumAge += user.age;
+    });
+     */
+    //Soma das idades utilizando Reduce
+    let sumAge = userArray.reduce((sum, actual)=>{
+        return sum + actual.age;
+    }, 0)
+    let averageAge = sumAge/userArray.length;
     
     let maleSpan = document.querySelector('#statsMale');
     maleSpan.textContent = `Homens: ${male}`;
@@ -39,4 +51,4 @@ function loadMoreInfo(userArray){
     averageSpan.textContent =  `Média de Idades: ${averageAge}`;
 
 }
-start(); 
+window.addEventListener('load',start)
